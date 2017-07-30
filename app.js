@@ -19,7 +19,7 @@ app.post('/standings', function (req, res) {
           $('tr').each(function(tr_index, tr) {
             var teamRow = $(this)
             var children = $(this).children();
-            var teamName = $(children[0]).text()
+            var teamName = normalizeTeam($(children[0]).text())
             var wins = Number($(children[1]).text())
             var losses = Number($(children[2]).text())
 
@@ -36,6 +36,13 @@ app.post('/standings', function (req, res) {
 app.listen(process.env.PORT || 3000, function () {
   console.log('Example app listening on port 3000!')
 })
+
+var normalizeTeam = function(team) {
+  var index = team.indexOf('(')
+  var normalizedTeam = team.substring(0, index != -1 ? index : team.length);
+  normalizedTeam = normalizedTeam.trim()
+  return normalizedTeam;
+}
 
 var formatResponse = function(players, teams) {
   players.forEach(function(player){
@@ -58,7 +65,7 @@ var toStringResponse = function(players) {
   "displayText": response,
   "source": "JeffBot"
   }
-  
+
   return responseBody;
 }
 
@@ -66,7 +73,6 @@ var updatePlayer = function(player, teams) {
   player.wins = 0
   player.losses = 0
   player.winPct = 0
-
   player.teams.forEach(function(team) {
     player.wins +=  teams[team].wins
     player.losses += teams[team].losses
